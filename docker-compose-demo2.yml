@@ -39,7 +39,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     volumes:
-            - $PWD/frr100:/etc/frr:rw
+            - $PWD/demo2/frr100:/etc/frr:rw
     command: "/bin/bash /etc/frr/start_frr.sh"
     networks:
       net1:
@@ -58,7 +58,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     volumes:
-            - $PWD/frr200:/etc/frr:rw
+            - $PWD/demo2/frr200:/etc/frr:rw
     command: "/bin/bash /etc/frr/start_frr.sh"
     networks:
       net1:
