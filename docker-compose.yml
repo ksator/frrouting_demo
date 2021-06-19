@@ -8,9 +8,9 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: 10.0.0.0/24
-        gateway: 10.0.0.1
-  net2:
+      - subnet: 192.168.1.0/24
+        gateway: 192.168.1.1
+  net100:
     enable_ipv6: false
     driver: bridge
     ipam:
@@ -18,7 +18,7 @@ networks:
       config:
       - subnet: 192.168.100.0/24
         gateway: 192.168.100.1
-  net3:
+  net200:
     enable_ipv6: false
     driver: bridge
     ipam:
@@ -27,43 +27,43 @@ networks:
       - subnet: 192.168.200.0/24
         gateway: 192.168.200.1
 services: 
-  frr1:
+  frr100:
     cap_add:
       - CAP_NET_RAW
       - NET_ADMIN
       - SYS_ADMIN
     privileged: true
     image: ksator/frr:1.0
-    container_name: frr1
+    container_name: frr100
     build:
       context: ./
       dockerfile: Dockerfile
     volumes:
-      - $PWD/frr1:/etc/frr
+            - $PWD/frr100:/etc/frr:rw
     command: "/bin/bash /etc/frr/start_frr.sh"
     networks:
       net1:
-        ipv4_address: 10.0.0.100
-      net2:
+        ipv4_address: 192.168.1.100
+      net100:
         ipv4_address: 192.168.100.100
-  frr2:
+  frr200:
     cap_add:
       - CAP_NET_RAW
       - NET_ADMIN
       - SYS_ADMIN
     privileged: true
     image: ksator/frr:1.0
-    container_name: frr2
+    container_name: frr200
     build:
       context: ./
       dockerfile: Dockerfile
     volumes:
-      - $PWD/frr2:/etc/frr
+            - $PWD/frr200:/etc/frr:rw
     command: "/bin/bash /etc/frr/start_frr.sh"
     networks:
       net1:
-        ipv4_address: 10.0.0.200
-      net3:
+        ipv4_address: 192.168.1.200
+      net200:
         ipv4_address: 192.168.200.200
 
 
