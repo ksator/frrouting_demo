@@ -32,7 +32,7 @@ services:
       - CAP_NET_RAW
       - NET_ADMIN
       - SYS_ADMIN
-    privileged: true
+    privileged: false
     image: ksator/frr:1.0
     container_name: frr100
     build:
@@ -51,7 +51,7 @@ services:
       - CAP_NET_RAW
       - NET_ADMIN
       - SYS_ADMIN
-    privileged: true
+    privileged: false
     image: ksator/frr:1.0
     container_name: frr200
     build:
