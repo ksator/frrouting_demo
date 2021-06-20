@@ -132,6 +132,13 @@ root@ad7ea78b29dd:/# vtysh
 Hello, this is FRRouting (version 7.5.1).
 Copyright 1996-2005 Kunihiro Ishiguro, et al.
 
+ad7ea78b29dd# show int brief 
+Interface       Status  VRF             Addresses
+---------       ------  ---             ---------
+eth0            up      default         192.168.1.100/24
+eth1            up      default         192.168.100.100/24
+lo              up      default         
+
 ad7ea78b29dd# sho bgp summary 
 
 IPv4 Unicast Summary:
