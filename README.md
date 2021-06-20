@@ -3,18 +3,18 @@
 Free Range Routing (FRR) demo using Docker Compose
 
 There are two ways of configuring FRR:
-- Traditionally each of the daemons had its own config file. For example, zebra’s config file was zebra.conf. This method is deprecated.
-- Because of the amount of config files this creates, and the tendency of one daemon to rely on others for certain functionality, most deployments now use the integrated configuration mode.  All configuration goes into a single file (frr.conf), for all daemons. This replaces the individual files like zebra.conf or bgpd.conf.
+- Traditionally each of the daemons had its own config file. For example, zebra’s config file was `zebra.conf`. This method is deprecated.
+- Because of the amount of config files this creates, and the tendency of one daemon to rely on others for certain functionality, most deployments now use the integrated configuration mode.  All configuration goes into a single file (`frr.conf`), for all daemons. This replaces the individual files like `zebra.conf` or `bgpd.conf`.
 
 This repository has 2 demo. The 2 demos uses the same [Dockerfile file](Dockerfile).
 - demo 1:
   - Integrated configuration mode
   - The docker-compose file is [docker-compose-demo1.yml](docker-compose-demo1.yml)
-  - 2 FRR containers configured with these files [frrouting_demo/demo1](frrouting_demo/demo1)
+  - 2 FRR containers configured with these files [demo1](demo1)
 - demo 2:
   - Old configuration mode
-  - The docker-compose file os [docker-compose-demo2.yml](docker-compose-demo2.yml)
-  - 2 FRR containers configured with these files [frrouting_demo/demo2](frrouting_demo/demo2)
+  - The docker-compose file is [docker-compose-demo2.yml](docker-compose-demo2.yml)
+  - 2 FRR containers configured with these files [demo2](demo2)
 
 # Requirements to run this repository
 
