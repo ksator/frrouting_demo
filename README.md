@@ -4,7 +4,7 @@ Free Range Routing (FRR) demo using Docker Compose
 
 There are two ways of configuring FRR:
 - Traditionally each of the daemons had its own config file. For example, zebra’s config file was `zebra.conf`. This method is deprecated.
-- Because of the amount of config files this creates, and the tendency of one daemon to rely on others for certain functionality, most deployments now use the integrated configuration mode.  All configuration goes into a single file (`frr.conf`), for all daemons. This replaces the individual files like `zebra.conf` or `bgpd.conf`.
+- Most deployments now use the integrated configuration mode.  All configuration goes into a single file (`frr.conf`), for all daemons. This replaces the individual files like `zebra.conf` or `bgpd.conf`.
 
 This repository has 2 demo. The 2 demos uses the same [Dockerfile file](Dockerfile).
 - demo 1:
@@ -57,7 +57,7 @@ Creating network "frrouting_demo_net200" with driver "bridge"
 Creating frr200 ... done
 Creating frr100 ... done
 ```
-- Run these commands to verify:
+- Run these commands on the host to verify:
 ```
 docker ps
 CONTAINER ID   IMAGE            COMMAND                  CREATED          STATUS          PORTS     NAMES
@@ -79,6 +79,153 @@ docker-compose -f docker-compose-demo1.yml ps
 -------------------------------------------------------
 frr100   /bin/bash /etc/frr/start_f ...   Up
 frr200   /bin/bash /etc/frr/start_f ...   Up
+```
+- Run this command to get into frr100 container shell  
+```
+docker exec -it frr100 bash
+```
+- Run these commands on the frr100 container 
+```
+root@ad7ea78b29dd:/# ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+358: eth1@if359: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:42:c0:a8:64:64 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 192.168.100.100/24 brd 192.168.100.255 scope global eth1
+       valid_lft forever preferred_lft forever
+362: eth0@if363: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:42:c0:a8:01:64 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 192.168.1.100/24 brd 192.168.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+root@ad7ea78b29dd:/# ls -l /etc/frr/
+total 20
+-rw-rw-r-- 1 frr frr 2580 Jun 19 21:33 daemons
+-rw-rw-r-- 1 frr frr  647 Jun 19 21:33 frr.conf
+-rw-rw-r-- 1 frr frr   60 Jun 19 21:33 start_frr.sh
+-rw-rw-r-- 1 frr frr 3581 Jun 19 21:33 support_bundle_commands.conf
+-rw-rw-r-- 1 frr frr   32 Jun 19 21:33 vtysh.conf
+
+root@ad7ea78b29dd:/# more /etc/frr/daemons | grep bgpd=
+bgpd=yes
+
+root@ad7ea78b29dd:/# service frr status
+ * Status of watchfrr: running
+ * Status of zebra: running
+ * Status of bgpd: running
+ * Status of staticd: running
+
+root@ad7ea78b29dd:/# ps -ef | grep frr
+root         1     0  0 09:44 ?        00:00:00 /bin/bash /etc/frr/start_frr.sh
+root        19     1  0 09:44 ?        00:00:00 /usr/lib/frr/watchfrr -d -F traditional zebra bgpd staticd
+frr         35     1  0 09:44 ?        00:00:00 /usr/lib/frr/zebra -d -F traditional -A 127.0.0.1 -s 90000000
+frr         42     1  0 09:44 ?        00:00:00 /usr/lib/frr/bgpd -d -F traditional -A 127.0.0.1
+frr         51     1  0 09:44 ?        00:00:00 /usr/lib/frr/staticd -d -F traditional -A 127.0.0.1
+root        94    69  0 09:45 pts/0    00:00:00 grep --color=auto frr
+```
+```
+root@ad7ea78b29dd:/# vtysh 
+
+Hello, this is FRRouting (version 7.5.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
+
+ad7ea78b29dd# sho bgp summary 
+
+IPv4 Unicast Summary:
+BGP router identifier 192.168.100.100, local AS number 65100 vrf-id 0
+BGP table version 3
+RIB entries 5, using 960 bytes of memory
+Peers 1, using 21 KiB of memory
+
+Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down State/PfxRcd   PfxSnt
+192.168.1.200   4      65200        19        18        0    0    0 00:13:28            1        1
+
+Total number of neighbors 1
+
+ad7ea78b29dd# sho ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+
+K>* 0.0.0.0/0 [0/0] via 192.168.1.1, eth0, 00:13:32
+C>* 192.168.1.0/24 is directly connected, eth0, 00:13:32
+C>* 192.168.100.0/24 is directly connected, eth1, 00:13:32
+B>* 192.168.200.0/24 [20/0] via 192.168.1.200, eth0, weight 1, 00:13:26
+
+ad7ea78b29dd# ping 192.168.200.200
+PING 192.168.200.200 (192.168.200.200) 56(84) bytes of data.
+64 bytes from 192.168.200.200: icmp_seq=1 ttl=64 time=0.382 ms
+64 bytes from 192.168.200.200: icmp_seq=2 ttl=64 time=0.758 ms
+^C
+--- 192.168.200.200 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1018ms
+rtt min/avg/max/mdev = 0.382/0.570/0.758/0.188 ms
+
+ad7ea78b29dd# show running-config 
+Building configuration...
+
+Current configuration:
+!
+frr version 7.5.1
+frr defaults traditional
+hostname ad7ea78b29dd
+log syslog informational
+no ipv6 forwarding
+service integrated-vtysh-config
+!
+password arista
+enable password arista
+!
+interface eth0
+ description to bgp peer
+!
+interface eth1
+ description LAN
+!
+router bgp 65100
+ neighbor 192.168.1.200 remote-as 65200
+ neighbor 192.168.1.200 password arista
+ !
+ address-family ipv4 unicast
+  redistribute connected
+  neighbor 192.168.1.200 route-map IMPORT in
+  neighbor 192.168.1.200 route-map EXPORT out
+ exit-address-family
+!
+route-map EXPORT permit 10
+ match interface eth1
+!
+route-map EXPORT deny 100
+!
+route-map IMPORT permit 10
+!
+line vty
+!
+end
+ad7ea78b29dd# exit
+```
+Run this command to exit the frr100 container shell 
+```
+root@ad7ea78b29dd:/# exit
+exit
+```
+Run this command on the host to:
+- Stop the containers
+- Remove the containers
+- Remove the networks
+```
+docker-compose -f docker-compose-demo1.yml down
+Stopping frr100 ... done
+Stopping frr200 ... done
+Removing frr100 ... done
+Removing frr200 ... done
+Removing network frrouting_demo_net1
+Removing network frrouting_demo_net100
+Removing network frrouting_demo_net200
 ```
 
 ## demo 2 (old configuration mode)
