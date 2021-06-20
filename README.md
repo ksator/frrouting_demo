@@ -209,8 +209,6 @@ line vty
 end
 ad7ea78b29dd# exit
 ```
-
-
 you can telnet a daemon (if the daemon config has a password)
 ```
 root@ad7ea78b29dd:/# more /etc/services | grep zebra
@@ -384,3 +382,140 @@ Removing network frrouting_demo_net200
 ```
 
 ## demo 2 (old configuration mode)
+
+- Run this command to:
+  - Create the networks
+  - Build the docker image
+  - Create the containers
+  - Start the containers
+```
+docker-compose -f docker-compose-demo2.yml up -d
+Creating network "frrouting_demo_net1" with driver "bridge"
+Creating network "frrouting_demo_net100" with driver "bridge"
+Creating network "frrouting_demo_net200" with driver "bridge"
+Creating frr200 ... done
+Creating frr100 ... done
+```
+- Run this command to get into frr100 container shell  
+```
+docker exec -it frr100 bash
+```
+- Run these commands on the frr100 container 
+```
+root@81bb8c310df9:/# ls -l /etc/frr/
+total 28
+-rw-rw-r-- 1 frr frr  593 Jun 19 21:33 bgpd.conf
+-rw-rw-r-- 1 frr frr 2580 Jun 19 21:33 daemons
+-rw-rw-r-- 1 frr frr   60 Jun 19 21:33 start_frr.sh
+-rw-rw-r-- 1 frr frr  213 Jun 19 21:33 staticd.conf
+-rw-rw-r-- 1 frr frr 3581 Jun 19 21:33 support_bundle_commands.conf
+-rw-rw-r-- 1 frr frr   35 Jun 19 21:33 vtysh.conf
+-rw-rw-r-- 1 frr frr  426 Jun 19 21:33 zebra.conf
+root@81bb8c310df9:/# 
+```
+`vtysh` provides a combined frontend to all FRR daemons in a single combined session
+```
+root@81bb8c310df9:/# vtysh 
+
+Hello, this is FRRouting (version 7.5.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
+
+81bb8c310df9# show bgp summary 
+
+IPv4 Unicast Summary:
+BGP router identifier 192.168.100.100, local AS number 65100 vrf-id 0
+BGP table version 3
+RIB entries 5, using 960 bytes of memory
+Peers 1, using 21 KiB of memory
+
+Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down State/PfxRcd   PfxSnt
+192.168.1.200   4      65200         8         9        0    0    0 00:03:11            1        1
+
+Total number of neighbors 1
+
+81bb8c310df9# sho ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+
+K>* 0.0.0.0/0 [0/0] via 192.168.1.1, eth0, 00:03:16
+C>* 192.168.1.0/24 is directly connected, eth0, 00:03:16
+C>* 192.168.100.0/24 is directly connected, eth1, 00:03:16
+B>* 192.168.200.0/24 [20/0] via 192.168.1.200, eth0, weight 1, 00:03:09
+
+81bb8c310df9# ping 192.168.200.200
+PING 192.168.200.200 (192.168.200.200) 56(84) bytes of data.
+64 bytes from 192.168.200.200: icmp_seq=1 ttl=64 time=0.446 ms
+64 bytes from 192.168.200.200: icmp_seq=2 ttl=64 time=0.712 ms
+64 bytes from 192.168.200.200: icmp_seq=3 ttl=64 time=0.670 ms
+^C
+--- 192.168.200.200 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2034ms
+rtt min/avg/max/mdev = 0.446/0.609/0.712/0.116 ms
+
+81bb8c310df9# show running-config 
+Building configuration...
+
+Current configuration:
+!
+frr version 7.5.1
+frr defaults traditional
+hostname 11e2fca915a9
+log syslog informational
+no ipv6 forwarding
+hostname 81bb8c310df9
+no service integrated-vtysh-config
+!
+password arista
+enable password arista
+!
+interface eth0
+ description to bgp peer
+!
+interface eth1
+ description LAN
+!
+router bgp 65100
+ neighbor 192.168.1.200 remote-as 65200
+ neighbor 192.168.1.200 password arista
+ !
+ address-family ipv4 unicast
+  redistribute connected
+  neighbor 192.168.1.200 route-map IMPORT in
+  neighbor 192.168.1.200 route-map EXPORT out
+ exit-address-family
+!
+route-map EXPORT permit 10
+ match interface eth1
+!
+route-map EXPORT deny 100
+!
+route-map IMPORT permit 10
+!
+line vty
+!
+end
+81bb8c310df9# exit
+```
+Run this command to exit the frr100 container shell 
+```
+root@81bb8c310df9:/# exit
+exit
+```
+Run this command on the host to:
+- Stop the containers
+- Remove the containers
+- Remove the networks
+```
+docker-compose -f docker-compose-demo2.yml down
+Stopping frr100 ... done
+Stopping frr200 ... done
+Removing frr100 ... done
+Removing frr200 ... done
+Removing network frrouting_demo_net1
+Removing network frrouting_demo_net100
+Removing network frrouting_demo_net200
+```
+
