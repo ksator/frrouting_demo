@@ -125,6 +125,7 @@ frr         42     1  0 09:44 ?        00:00:00 /usr/lib/frr/bgpd -d -F traditio
 frr         51     1  0 09:44 ?        00:00:00 /usr/lib/frr/staticd -d -F traditional -A 127.0.0.1
 root        94    69  0 09:45 pts/0    00:00:00 grep --color=auto frr
 ```
+`vtysh` provides a combined frontend to all FRR daemons in a single combined session
 ```
 root@ad7ea78b29dd:/# vtysh 
 
@@ -208,6 +209,160 @@ line vty
 end
 ad7ea78b29dd# exit
 ```
+
+
+you can telnet a daemon (if the daemon config has a password)
+```
+root@ad7ea78b29dd:/# more /etc/services | grep zebra
+zebrasrv        2600/tcp                        # zebra service
+zebra           2601/tcp                        # zebra vty
+ripd            2602/tcp                        # ripd vty (zebra)
+ripngd          2603/tcp                        # ripngd vty (zebra)
+ospfd           2604/tcp                        # ospfd vty (zebra)
+bgpd            2605/tcp                        # bgpd vty (zebra)
+ospf6d          2606/tcp                        # ospf6d vty (zebra)
+isisd           2608/tcp                        # ISISd vty (zebra)
+```
+telnet bgpd
+```
+root@ad7ea78b29dd:/# telnet localhost 2605
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+
+Hello, this is FRRouting (version 7.5.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
+
+
+User Access Verification
+
+Password: 
+ad7ea78b29dd> en
+Password: 
+ad7ea78b29dd# sh bgp summary 
+
+IPv4 Unicast Summary:
+BGP router identifier 192.168.100.100, local AS number 65100 vrf-id 0
+BGP table version 3
+RIB entries 5, using 960 bytes of memory
+Peers 1, using 21 KiB of memory
+
+Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down State/PfxRcd   PfxSnt
+192.168.1.200   4      65200        11        10        0    0    0 00:05:17            1        1
+
+Total number of neighbors 1
+
+ad7ea78b29dd# sho running-config 
+
+Current configuration:
+!
+frr version 7.5.1
+frr defaults traditional
+!
+hostname 54124bfdab91
+password arista
+enable password arista
+log syslog informational
+!
+!
+!
+router bgp 65100
+ neighbor 192.168.1.200 remote-as 65200
+ neighbor 192.168.1.200 password arista
+ !
+ address-family ipv4 unicast
+  redistribute connected
+  neighbor 192.168.1.200 route-map IMPORT in
+  neighbor 192.168.1.200 route-map EXPORT out
+ exit-address-family
+!
+!
+!
+route-map EXPORT permit 10
+ match interface eth1
+route-map EXPORT deny 100
+!
+route-map IMPORT permit 10
+!
+!
+line vty
+!
+end
+
+ad7ea78b29dd# exit
+Connection closed by foreign host.
+```
+telnet zebra
+```
+root@ad7ea78b29dd:/# telnet localhost 2601
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+
+Hello, this is FRRouting (version 7.5.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
+
+
+User Access Verification
+
+Password: 
+ad7ea78b29dd> en
+Password: 
+ad7ea78b29dd# sh ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+
+K>* 0.0.0.0/0 [0/0] via 192.168.1.1, eth0, 00:06:26
+C>* 192.168.1.0/24 is directly connected, eth0, 00:06:26
+C>* 192.168.100.0/24 is directly connected, eth1, 00:06:26
+B>* 192.168.200.0/24 [20/0] via 192.168.1.200, eth0, weight 1, 00:06:20
+
+
+ad7ea78b29dd# show running-config 
+
+Current configuration:
+!
+frr version 7.5.1
+frr defaults traditional
+!
+hostname 54124bfdab91
+password arista
+enable password arista
+log syslog informational
+!
+!
+!
+!
+interface eth0
+ description to bgp peer
+!
+interface eth1
+ description LAN
+!
+!
+route-map EXPORT permit 10
+ match interface eth1
+route-map EXPORT deny 100
+!
+route-map IMPORT permit 10
+!
+!
+no ipv6 forwarding
+!
+!
+!
+line vty
+!
+end
+
+ad7ea78b29dd# exit
+Connection closed by foreign host.
+root@ad7ea78b29dd:/#
+```
+
 Run this command to exit the frr100 container shell 
 ```
 root@ad7ea78b29dd:/# exit
