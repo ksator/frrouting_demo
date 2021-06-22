@@ -80,22 +80,22 @@ docker-compose -f docker-compose-demo1.yml ps
 frr100   /bin/bash /etc/frr/start_f ...   Up
 frr200   /bin/bash /etc/frr/start_f ...   Up
 ```
-- Run this command to get into frr100 container shell  
+- Run this command to get into frr100 container shell
 ```
 docker exec -it frr100 bash
 ```
-- Run these commands on the frr100 container 
+- Run these commands on the frr100 container
 ```
 root@ad7ea78b29dd:/# ip addr
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-358: eth1@if359: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+358: eth1@if359: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
     link/ether 02:42:c0:a8:64:64 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 192.168.100.100/24 brd 192.168.100.255 scope global eth1
        valid_lft forever preferred_lft forever
-362: eth0@if363: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+362: eth0@if363: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
     link/ether 02:42:c0:a8:01:64 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 192.168.1.100/24 brd 192.168.1.255 scope global eth0
        valid_lft forever preferred_lft forever
@@ -127,19 +127,19 @@ root        94    69  0 09:45 pts/0    00:00:00 grep --color=auto frr
 ```
 `vtysh` provides a combined frontend to all FRR daemons in a single combined session
 ```
-root@ad7ea78b29dd:/# vtysh 
+root@ad7ea78b29dd:/# vtysh
 
 Hello, this is FRRouting (version 7.5.1).
 Copyright 1996-2005 Kunihiro Ishiguro, et al.
 
-ad7ea78b29dd# show int brief 
+ad7ea78b29dd# show int brief
 Interface       Status  VRF             Addresses
 ---------       ------  ---             ---------
 eth0            up      default         192.168.1.100/24
 eth1            up      default         192.168.100.100/24
-lo              up      default         
+lo              up      default
 
-ad7ea78b29dd# sho bgp summary 
+ad7ea78b29dd# sho bgp summary
 
 IPv4 Unicast Summary:
 BGP router identifier 192.168.100.100, local AS number 65100 vrf-id 0
@@ -173,7 +173,7 @@ PING 192.168.200.200 (192.168.200.200) 56(84) bytes of data.
 2 packets transmitted, 2 received, 0% packet loss, time 1018ms
 rtt min/avg/max/mdev = 0.382/0.570/0.758/0.188 ms
 
-ad7ea78b29dd# show running-config 
+ad7ea78b29dd# show running-config
 Building configuration...
 
 Current configuration:
@@ -241,10 +241,10 @@ Copyright 1996-2005 Kunihiro Ishiguro, et al.
 
 User Access Verification
 
-Password: 
+Password:
 ad7ea78b29dd> en
-Password: 
-ad7ea78b29dd# sh bgp summary 
+Password:
+ad7ea78b29dd# sh bgp summary
 
 IPv4 Unicast Summary:
 BGP router identifier 192.168.100.100, local AS number 65100 vrf-id 0
@@ -257,7 +257,7 @@ Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down Sta
 
 Total number of neighbors 1
 
-ad7ea78b29dd# sho running-config 
+ad7ea78b29dd# sho running-config
 
 Current configuration:
 !
@@ -310,9 +310,9 @@ Copyright 1996-2005 Kunihiro Ishiguro, et al.
 
 User Access Verification
 
-Password: 
+Password:
 ad7ea78b29dd> en
-Password: 
+Password:
 ad7ea78b29dd# sh ip route
 Codes: K - kernel route, C - connected, S - static, R - RIP,
        O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
@@ -326,7 +326,7 @@ C>* 192.168.100.0/24 is directly connected, eth1, 00:06:26
 B>* 192.168.200.0/24 [20/0] via 192.168.1.200, eth0, weight 1, 00:06:20
 
 
-ad7ea78b29dd# show running-config 
+ad7ea78b29dd# show running-config
 
 Current configuration:
 !
@@ -368,7 +368,7 @@ Connection closed by foreign host.
 root@ad7ea78b29dd:/#
 ```
 
-Run this command to exit the frr100 container shell 
+Run this command to exit the frr100 container shell
 ```
 root@ad7ea78b29dd:/# exit
 exit
@@ -403,11 +403,11 @@ Creating network "frrouting_demo_net200" with driver "bridge"
 Creating frr200 ... done
 Creating frr100 ... done
 ```
-- Run this command to get into frr100 container shell  
+- Run this command to get into frr100 container shell
 ```
 docker exec -it frr100 bash
 ```
-- Run these commands on the frr100 container 
+- Run these commands on the frr100 container
 ```
 root@81bb8c310df9:/# ls -l /etc/frr/
 total 28
@@ -418,16 +418,16 @@ total 28
 -rw-rw-r-- 1 frr frr 3581 Jun 19 21:33 support_bundle_commands.conf
 -rw-rw-r-- 1 frr frr   35 Jun 19 21:33 vtysh.conf
 -rw-rw-r-- 1 frr frr  426 Jun 19 21:33 zebra.conf
-root@81bb8c310df9:/# 
+root@81bb8c310df9:/#
 ```
 `vtysh` provides a combined frontend to all FRR daemons in a single combined session
 ```
-root@81bb8c310df9:/# vtysh 
+root@81bb8c310df9:/# vtysh
 
 Hello, this is FRRouting (version 7.5.1).
 Copyright 1996-2005 Kunihiro Ishiguro, et al.
 
-81bb8c310df9# show bgp summary 
+81bb8c310df9# show bgp summary
 
 IPv4 Unicast Summary:
 BGP router identifier 192.168.100.100, local AS number 65100 vrf-id 0
@@ -462,7 +462,7 @@ PING 192.168.200.200 (192.168.200.200) 56(84) bytes of data.
 3 packets transmitted, 3 received, 0% packet loss, time 2034ms
 rtt min/avg/max/mdev = 0.446/0.609/0.712/0.116 ms
 
-81bb8c310df9# show running-config 
+81bb8c310df9# show running-config
 Building configuration...
 
 Current configuration:
@@ -506,7 +506,7 @@ line vty
 end
 81bb8c310df9# exit
 ```
-Run this command to exit the frr100 container shell 
+Run this command to exit the frr100 container shell
 ```
 root@81bb8c310df9:/# exit
 exit
@@ -525,4 +525,6 @@ Removing network frrouting_demo_net1
 Removing network frrouting_demo_net100
 Removing network frrouting_demo_net200
 ```
+# Credit
 
+Credit goes to Pierre Dezitter for his works on this topic.  
