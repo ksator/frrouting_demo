@@ -1,3 +1,9 @@
+- [About this repository](#about-this-repository)
+- [Requirements to run this repository](#requirements-to-run-this-repository)
+- [Instructions to use this repository](#instructions-to-use-this-repository)
+  - [demo 1 (Integrated configuration mode)](#demo-1-integrated-configuration-mode)
+  - [demo 2 (old configuration mode)](#demo-2-old-configuration-mode)
+- [Credit](#credit)
 # About this repository
 
 Free Range Routing (FRR) demo using Docker Compose
@@ -527,4 +533,4 @@ Removing network frrouting_demo_net200
 ```
 # Credit
 
-Credit goes to Pierre Dezitter for his works on this topic.  
+Credit goes to Pierre Dezitter for his works on this topic.
